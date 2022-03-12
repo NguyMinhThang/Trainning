@@ -1,50 +1,53 @@
 import { useState } from "react";
 import { useEffect } from "react";
+import { useMemo } from "react";
 function App() {
   const [memJava, setJava] = useState([
     {
       id: 1,
       name: "Nguyễn Anh Thư",
       age: 20,
-      type: "Java"
+      type: "Java",
     },
     {
       id: 2,
       name: "Nguyễn Văn Cường",
-      age: 20,
-      type: "Jave"
+      age: 19,
+      type: "Jave",
     },
     {
       id: 3,
       name: "Phan Đinh Tùng",
-      age: 20,
-      type: "Java"
-    }
+      age: 21,
+      type: "Java",
+    },
   ]);
   const [memReact, setReact] = useState([
     {
       id: 4,
       name: "Ngụy Minh Thắng",
       age: 20,
-      type: "React"
+      type: "React",
     },
     {
       id: 5,
       name: "Nguyễn Đăng Quý",
-      age: 20,
-      type: "React"
+      age: 19,
+      type: "React",
     },
     {
       id: 6,
       name: "Đinh Tuấn Anh",
-      age: 20,
-      type: "React"
-    }
+      age: 18,
+      type: "React",
+    },
   ]);
+
   const [change, setChange] = useState("React");
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
   const [id, setId] = useState(1);
+  const [search, setSearch] = useState("");
 
   const handleAdd = () => {
     // if(change === 'React') {
@@ -98,6 +101,7 @@ function App() {
     console.log("name", name);
     console.log("age", age);
   };
+
   const hanleChange = (e) => {
     setChange(e.target.value);
   };
@@ -119,8 +123,8 @@ function App() {
           id: user.id,
           name: user.name,
           age: user.age,
-          type: "Java"
-        }
+          type: "Java",
+        },
       ]);
     }
     if (user.type === "Java") {
@@ -132,54 +136,103 @@ function App() {
           id: user.id,
           name: user.name,
           age: user.age,
-          type: "React"
-        }
+          type: "React",
+        },
       ]);
     }
   };
+  const handleSort = (item) => {
+    console.log(item.name);
+  };
+
+  const listSearch = useMemo(() => {
+    if (!search) return [];
+    return memJava.concat(memReact).filter((item) => {
+      return item.name.toLowerCase().includes(search.toLowerCase());
+    });
+  }, [search, memReact,memJava]);
   const handleEdit = (user) => {
     setName(user.name);
     setAge(user.age);
     setId(user.id);
   };
+  const handleDel=(user)=>{
+    console.log("Xóa user",user);
+    if (user.type === "React") {
+      let newList = memReact.filter((item) => item.id !== user.id);
+      setReact([...newList]);
+    }
+      if (user.type === "Java") {
+        let newList = memJava.filter((item) => item.id !== user.id);
+        setJava([...newList]);
+  };
+
+  }
+  const handleSearch = (e) => {
+    setSearch(e.target.value);
+    console.log(listSearch)
+  };
   return (
     <div>
-      <h1>List member of React</h1>
-      <ul>
-        {memReact.map((member, index) => (
-          <li key={index}>
-            name: {member.name} -age: {member.age}
-            <button onClick={() => handleTranfer(member)}>Tranfer</button>
-            <button onClick={() => handleEdit(member)}>Edit</button>
-          </li>
-        ))}
-      </ul>
-      <h1>List member of Java</h1>
-      <ul>
-        {memJava.map((member, index) => (
-          <li key={index}>
-            name: {member.name} - age: {member.age}
-            <button onClick={() => handleTranfer(member)}>Tranfer</button>
-            <button onClick={() => handleEdit(member)}>Edit</button>
-          </li>
-        ))}
-      </ul>
       <input
-        placeholder="Enter name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
+        placeholder="Search"
+        value={search}
+        onChange={(e) => handleSearch(e)}
       />
-      <input
-        placeholder="Enter age"
-        value={age}
-        onChange={(e) => setAge(e.target.value)}
-      />
-      <select onChange={hanleChange}>
-        <option value="React">React</option>
-        <option value="Java">Java</option>
-      </select>
-      <br />
-      <button onClick={handleAdd}>Add member</button>
+      <button onClick={() => handleSort()}>Sort</button>
+      {listSearch  && (
+        <>
+          {
+            listSearch.map(item=>(
+              <div>
+                <p>Name:{item.name} Age:{item.age}</p>
+              </div>
+            ))
+          }
+        </>
+      )}
+      {!search && (
+        <>
+          <h1>List member of React</h1>
+          <ul>
+            {memReact.map((member, index) => (
+              <li key={index}>
+                name: {member.name} -age: {member.age}
+                <button onClick={() => handleTranfer(member)}>Tranfer</button>
+                <button onClick={() => handleEdit(member)}>Edit</button>
+                <button onClick={() => handleDel(member)}>Del</button>
+              </li>
+            ))}
+          </ul>
+          <h1>List member of Java</h1>
+          <ul>
+            {memJava.map((member, index) => (
+              <li key={index}>
+                name: {member.name} - age: {member.age}
+                <button onClick={() => handleTranfer(member)}>Tranfer</button>
+                <button onClick={() => handleEdit(member)}>Edit</button>
+                <button onClick={() => handleDel(member)}>Del</button>
+              </li>
+            ))}
+          </ul>
+          <input
+            placeholder="Enter name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <input
+            placeholder="Enter age"
+            value={age}
+            onChange={(e) => setAge(e.target.value)}
+          />
+          <select onChange={hanleChange}>
+            <option value="React">React</option>
+            <option value="Java">Java</option>
+          </select>
+          <br />
+          <button onClick={handleAdd}>Add member</button>
+        </>
+      )}
     </div>
   );
 }
